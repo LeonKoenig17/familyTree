@@ -1,0 +1,11 @@
+@import "./../../styles.scss";
+
+:host {
+    @include dFlex();
+}
+
+section {
+    @include dFlex();
+    @include contentLimit();
+    height: calc(100vh - 2 * $HFHeight);
+}

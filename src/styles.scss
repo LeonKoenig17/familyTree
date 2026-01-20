@@ -1,0 +1,35 @@
+@font-face {
+    font-family: Inter;
+    src: url("./../public/fonts/Inter-VariableFont_opsz\,wght.ttf");
+}
+
+@mixin dFlex($jc: center, $ai: center) {
+    display: flex;
+    justify-content: $jc;
+    align-items: $ai;
+}
+
+@mixin contentLimit($height: unset, $padY: 0px, $padX: 60px) {
+    height: $height;
+    width: 100%;
+    max-width: calc(1440px - $padX * 2);
+    margin: $padY $padX;
+}
+
+$HFHeight: 70px;
+$primary-font-color: #31456A;
+
+body {
+    background-color: #E2EDF7;
+    * {
+        transition: all 0.2s ease-in-out;
+    }
+}
+
+body, html {
+    margin: 0;
+}
+
+* {
+    font-family: Inter;
+}

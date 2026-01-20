@@ -1,0 +1,12 @@
+@import "./../../../styles.scss";
+
+:host {
+    @include dFlex();
+    background-color: #b6c8d8;
+}
+section {
+    @include dFlex();
+    @include contentLimit();
+    gap: 20px;
+    height: $HFHeight;
+}
