@@ -4,11 +4,15 @@ section {
     @include dFlex();
     flex-direction: column;
     background-color: rgb(173, 165, 159);
-    padding: 30px;
+    padding: 10px;
     .image {
         width: 150px;
         height: 150px;
         background-color: white;
+        overflow: hidden;
+        img {
+            width: 100%;
+        }
     }
     .name {
         h3 {

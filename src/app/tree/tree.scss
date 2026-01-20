@@ -8,4 +8,5 @@ section {
     @include dFlex();
     @include contentLimit();
     height: calc(100vh - 2 * $HFHeight);
+    gap: 100px;
 }
