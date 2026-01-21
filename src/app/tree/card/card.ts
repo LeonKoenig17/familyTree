@@ -9,5 +9,4 @@ import { ChildNode } from '../../treeData';
 })
 export class Card {
   @Input() person: ChildNode = {name: ""};
-  @Input() partner: any;
 }

@@ -6,7 +6,12 @@
 
 section {
     @include dFlex();
+    flex-direction: column;
     @include contentLimit();
     height: calc(100vh - 2 * $HFHeight);
-    gap: 100px;
+    gap: 150px;
+    .row {
+        @include dFlex();
+        gap: 100px;
+    }
 }

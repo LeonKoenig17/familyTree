@@ -1,7 +1,18 @@
 <section>
-    <app-card #parentCard [person]="treeData"></app-card>
-    <app-card #parentCard [partner]="treeData.partner"></app-card>
-    @for (child of treeData.children; track $index) {
-      <app-card #childCard [person]="child"></app-card>
+  <div class="row">
+    <app-card #personEl [person]="node"></app-card>
+    
+    @if (node.partner) {
+      <app-card #partnerEl [person]="node.partner"></app-card>
     }
+  </div>
+  
+  @if (node.children?.length) {
+    <div class="row">
+      @for (c of node.children; track $index) {
+        <app-person-node [node]="c"></app-person-node>
+      }
+    </div>
+  }
+
 </section>

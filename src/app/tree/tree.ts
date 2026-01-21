@@ -3,10 +3,11 @@ import {
   Component,
   ElementRef,
   HostListener,
+  Input,
   OnDestroy,
+  QueryList,
   ViewChild,
   ViewChildren,
-  QueryList
 } from '@angular/core';
 import { Card } from './card/card';
 import { treeData } from '../treeData';
@@ -15,29 +16,54 @@ declare const LeaderLine: any;
 
 @Component({
   selector: 'app-tree',
-  standalone: true,
+  // standalone: true,
   imports: [Card],
   templateUrl: './tree.html',
-  styleUrls: ['./tree.scss']
+  styleUrls: ['./tree.scss'],
 })
 export class Tree implements AfterViewInit, OnDestroy {
   treeData = treeData;
 
-  // parent (root) card element
+  @Input() node!: ChildNode;
+
   @ViewChild('parentCard', { read: ElementRef })
   parentRef!: ElementRef<HTMLElement>;
 
-  // all child card elements rendered by @for
+  // optional (because @if)
+  @ViewChild('partnerCard', { read: ElementRef })
+  partnerRef?: ElementRef<HTMLElement>;
+  
   @ViewChildren('childCard', { read: ElementRef })
   childRefs!: QueryList<ElementRef<HTMLElement>>;
-
+  
   private lines: any[] = [];
+  private rebuildQueued = false;
 
   ngAfterViewInit() {
     this.buildLines();
 
-    // if children list changes later (expand/collapse, async load), rebuild
-    this.childRefs.changes.subscribe(() => this.buildLines());
+    // If your children list changes later, rebuild once
+    this.childRefs.changes.subscribe(() => this.queueRebuildLines());
+  }
+
+  @HostListener('window:resize')
+  onResize() {
+    this.queueRebuildLines();
+  }
+
+  @HostListener('window:scroll')
+  onScroll() {
+    this.queueRebuildLines();
+  }
+
+  private queueRebuildLines() {
+    if (this.rebuildQueued) return;
+    this.rebuildQueued = true;
+    
+    requestAnimationFrame(() => {
+      this.rebuildQueued = false;
+      this.buildLines();
+    });
   }
 
   private buildLines() {
@@ -46,41 +72,61 @@ export class Tree implements AfterViewInit, OnDestroy {
     const parentEl = this.parentRef?.nativeElement;
     if (!parentEl) return;
 
-    for (const childRef of this.childRefs.toArray()) {
-      const childEl = childRef.nativeElement;
+    const partnerEl = this.partnerRef?.nativeElement;
 
-      const line = new LeaderLine(parentEl, childEl, {
-        color: '#000',
-        size: 2,
-        path: 'straight',
-        startPlug: 'behind',
-        endPlug: 'behind'
-      });
-
-      this.lines.push(line);
+    // 1) parent ↔ partner line
+    if (partnerEl) {
+      this.lines.push(
+        new LeaderLine(parentEl, partnerEl, {
+          color: '#000',
+          size: 2,
+          path: 'straight',
+          startPlug: 'behind',
+          endPlug: 'behind',
+        })
+      );
     }
 
-    // position after paint
-    queueMicrotask(() => this.positionLines());
+    // 2) midpoint anchor for child lines (fallback to parent if no partner)
+    const start = partnerEl ? this.getMidpointAnchor(parentEl, partnerEl) : parentEl;
+
+    // 3) midpoint → each child
+    for (const childRef of this.childRefs.toArray()) {
+      this.lines.push(
+        new LeaderLine(start, childRef.nativeElement, {
+          color: '#000',
+          size: 2,
+          path: 'straight',
+          startPlug: 'behind',
+          endPlug: 'behind',
+          // optional if children are below:
+          startSocket: 'bottom',
+          endSocket: 'top',
+        })
+      );
+    }
+
+    // One position pass after creation (NOT a rebuild)
+    requestAnimationFrame(() => {
+      for (const line of this.lines) line.position();
+    });
   }
 
-  private positionLines() {
-    for (const line of this.lines) line.position();
+  private getMidpointAnchor(aEl: HTMLElement, bEl: HTMLElement) {
+    const a = aEl.getBoundingClientRect();
+    const b = bEl.getBoundingClientRect();
+
+    const ax = a.left + a.width / 2;
+    const ay = a.top + a.height / 2;
+    const bx = b.left + b.width / 2;
+    const by = b.top + b.height / 2;
+
+    return LeaderLine.pointAnchor({ x: (ax + bx) / 2, y: (ay + by) / 2 });
   }
 
   private removeLines() {
     for (const line of this.lines) line.remove();
     this.lines = [];
-  }
-
-  @HostListener('window:resize')
-  onResize() {
-    this.positionLines();
-  }
-
-  @HostListener('window:scroll')
-  onScroll() {
-    this.positionLines();
   }
 
   ngOnDestroy() {
