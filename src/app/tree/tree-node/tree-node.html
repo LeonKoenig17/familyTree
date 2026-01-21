@@ -1,0 +1,17 @@
+<section>
+    <div class="node-row">
+      <app-card class="card" [attr.data-node-id]="node.id" [person]="node"></app-card>
+    
+      @if (node.partner) {
+        <app-card class="card" [attr.data-node-id]="node.partner.id" [person]="node.partner"></app-card>
+      }
+    </div>
+    
+    @if (node.children?.length) {
+      <div class="children-row">
+        @for (c of node.children; track c.id) {
+          <app-tree-node [node]="c"></app-tree-node>
+        }
+      </div>
+    }
+</section>

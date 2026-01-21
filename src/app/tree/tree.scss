@@ -10,8 +10,4 @@ section {
     @include contentLimit();
     height: calc(100vh - 2 * $HFHeight);
     gap: 150px;
-    .row {
-        @include dFlex();
-        gap: 100px;
-    }
 }

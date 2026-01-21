@@ -1,24 +1,25 @@
-export type ChildNode = {
+export type PersonNode = {
+  id: string;
   name: string;
   image?: string;
-  partner?: ChildNode;
-  children?: ChildNode[];
+  partner?: PersonNode;
+  children?: PersonNode[];
 };
 
-function Partner(
-    name: string,
-    image?: string
-) {
-    return { name, image };
+let idCounter = 0;
+const uid = () => `n${++idCounter}`;
+
+function Partner(name: string, image?: string): PersonNode {
+    return { id: uid(), name, image };
 }
 
 function Child(
   name: string,
   image?: string,
-  partner?: ChildNode,
-  ...children: ChildNode[]
-): ChildNode {
-  return { name, image, partner, children };
+  partner?: PersonNode,
+  ...children: PersonNode[]
+): PersonNode {
+  return { id: uid(), name, image, partner, children };
 }
 
 export const treeData = Child(

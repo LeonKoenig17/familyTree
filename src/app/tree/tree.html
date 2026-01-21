@@ -1,22 +1,3 @@
 <section>
-  <div class="row">
-    <app-card #parentCard [person]="treeData"></app-card>
-    @if (treeData.partner) {
-      <app-card #partnerCard [person]="treeData.partner"></app-card>
-    }
-  </div>
-    @if (treeData.children) {
-      <div class="row">
-        @for (child of treeData.children; track $index) {
-          <app-card #childCard #parentCard [person]="child"></app-card>
-          @if (child.partner) {
-            <app-card #partnerCard [person]="child.partner"></app-card>
-          }
-          @if (child.children) {
-            @for (child of child.children; track $index) {}
-            <app-card #childCard [person]="child"></app-card>
-          }
-        }
-      </div>
-    }
+  <app-tree-node [node]="treeData"></app-tree-node>
 </section>
