@@ -9,4 +9,12 @@ import { PersonNode } from '../../treeData';
 })
 export class Card {
   @Input() person: PersonNode = { id: "", name: ""};
+  name = "";
+  ngOnInit() {
+    this.name = this.person.name
+      .trim()
+      .split(/\s+/)
+      .join("\n")
+    console.log(this.name);
+  }
 }

@@ -2,12 +2,22 @@
 
 :host {
     @include dFlex();
+    overflow: hidden;
 }
 
 section {
-    @include dFlex();
+    @include dFlex($jc: unset);
     flex-direction: column;
-    @include contentLimit();
-    height: calc(100vh - 2 * $HFHeight);
-    gap: 150px;
+    height: calc(100vh - 2 * $HFHeight - 50px);
+    overflow: auto;
+    position: relative;
+    margin-top: 50px;
+    cursor: grab;
+    user-select: none;
+    touch-action: none;
+    .content {
+    }
+    &.dragging {
+        cursor: grabbing;
+    }
 }

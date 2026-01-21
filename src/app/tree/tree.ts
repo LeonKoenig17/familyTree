@@ -6,6 +6,8 @@ import {
   OnDestroy,
   ViewChildren,
   QueryList,
+  viewChild,
+  ViewChild,
 } from '@angular/core';
 import { treeData, PersonNode } from '../treeData';
 import { TreeNode } from './tree-node/tree-node';
@@ -21,6 +23,8 @@ declare const LeaderLine: any;
 })
 export class Tree implements AfterViewInit, OnDestroy {
   treeData = treeData;
+
+  @ViewChild('viewport', { static: true }) viewport!: ElementRef<HTMLDivElement>;
 
   // Only useful if you actually add #cardHost in the template.
   @ViewChildren('cardHost', { read: ElementRef })
@@ -133,7 +137,7 @@ export class Tree implements AfterViewInit, OnDestroy {
                 endPlug: 'behind',
                 startSocket: 'bottom',
                 endSocket: 'top',
-                startSocketGravity: 125
+                startSocketGravity: 80
               })
             );
           }
@@ -154,5 +158,46 @@ export class Tree implements AfterViewInit, OnDestroy {
 
   ngOnDestroy() {
     this.removeLines();
+  }
+
+  private dragging = false;
+  private startX = 0;
+  private startY = 0;
+  private startScrollLeft = 0;
+  private startScrollTop = 0;
+
+  onDown(e: PointerEvent) {
+    const el = this.viewport.nativeElement;
+    this.dragging = true;
+
+    el.classList.add('dragging');
+    el.setPointerCapture(e.pointerId);
+
+    this.startX = e.clientX;
+    this.startY = e.clientY;
+    this.startScrollLeft = el.scrollLeft;
+    this.startScrollTop = el.scrollTop;
+  }
+
+  onMove(e: PointerEvent) {
+    if (!this.dragging) return;
+
+    const el = this.viewport.nativeElement;
+    const dx = e.clientX - this.startX;
+    const dy = e.clientY - this.startY;
+
+    // invert so dragging right moves content right (i.e., scroll left decreases)
+    el.scrollLeft = this.startScrollLeft - dx;
+    el.scrollTop = this.startScrollTop - dy;
+  }
+
+  onUp(e: PointerEvent) {
+    if (!this.dragging) return;
+
+    const el = this.viewport.nativeElement;
+    this.dragging = false;
+
+    el.classList.remove('dragging');
+    try { el.releasePointerCapture(e.pointerId); } catch {}
   }
 }

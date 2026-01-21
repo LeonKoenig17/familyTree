@@ -1,3 +1,10 @@
-<section>
-  <app-tree-node [node]="treeData"></app-tree-node>
+<section #viewport class="viewport"
+  (pointerdown)="onDown($event)"
+  (pointermove)="onMove($event)"
+  (pointerup)="onUp($event)"
+  (pointercancel)="onUp($event)"
+  (pointerleave)="onUp($event)">
+  <div class="content">
+    <app-tree-node [node]="treeData"></app-tree-node>
+  </div>
 </section>

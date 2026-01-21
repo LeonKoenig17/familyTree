@@ -1,12 +1,11 @@
 @import "./../../../styles.scss";
 
-
 section {
     @include dFlex();
     flex-direction: column;
-    gap: 150px;
+    gap: 60px;
     .node-row, .children-row {
-        @include dFlex();
-        gap: 100px;
+        @include dFlex($ai: unset);
+        gap: 50px;
     }
 }
