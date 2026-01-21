@@ -1,8 +1,8 @@
 <section>
     <div class="image">
-        <img src="/images/profile-picture.jpg" alt="">
+        <img [src]="person.image || '/images/image-placeholder.png'" alt="">
     </div>
     <div class="name">
-        <h3>Max Mustermann</h3>
+        <h3>{{person.name}}</h3>
     </div>
 </section>

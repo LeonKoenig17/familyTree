@@ -1,4 +1,7 @@
 <section>
-    <app-card></app-card>
-    <app-card></app-card>
+    <app-card #parentCard [person]="treeData"></app-card>
+    <app-card #parentCard [partner]="treeData.partner"></app-card>
+    @for (child of treeData.children; track $index) {
+      <app-card #childCard [person]="child"></app-card>
+    }
 </section>

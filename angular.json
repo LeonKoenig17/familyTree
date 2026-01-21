@@ -20,6 +20,9 @@
         "build": {
           "builder": "@angular/build:application",
           "options": {
+            "scripts": [
+              "node_modules/leader-line/leader-line.min.js"
+            ],
             "browser": "src/main.ts",
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",

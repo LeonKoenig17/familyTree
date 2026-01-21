@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
+import { ChildNode } from '../../treeData';
 
 @Component({
   selector: 'app-card',
@@ -7,5 +8,6 @@ import { Component } from '@angular/core';
   styleUrl: './card.scss',
 })
 export class Card {
-
+  @Input() person: ChildNode = {name: ""};
+  @Input() partner: any;
 }
