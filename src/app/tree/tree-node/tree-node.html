@@ -7,7 +7,7 @@
       }
     </div>
     
-    @if (node.children?.length) {
+    @if (node.children) {
       <div class="children-row">
         @for (c of node.children; track c.id) {
           <app-tree-node [node]="c"></app-tree-node>

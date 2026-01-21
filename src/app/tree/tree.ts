@@ -7,9 +7,8 @@ import {
   ViewChildren,
   QueryList,
 } from '@angular/core';
-import { treeData } from '../treeData';
+import { treeData, PersonNode } from '../treeData';
 import { TreeNode } from './tree-node/tree-node';
-import { PersonNode } from '../treeData';
 
 declare const LeaderLine: any;
 
@@ -23,9 +22,8 @@ declare const LeaderLine: any;
 export class Tree implements AfterViewInit, OnDestroy {
   treeData = treeData;
 
-  // grab every rendered app-card host element
+  // Only useful if you actually add #cardHost in the template.
   @ViewChildren('cardHost', { read: ElementRef })
-  // (we’ll set #cardHost on app-card below; see note)
   cardHosts!: QueryList<ElementRef<HTMLElement>>;
 
   private lines: any[] = [];
@@ -33,7 +31,10 @@ export class Tree implements AfterViewInit, OnDestroy {
 
   ngAfterViewInit() {
     this.buildLines();
-    this.cardHosts.changes.subscribe(() => this.queueRebuild());
+
+    // If you DO add #cardHost to each app-card, this will catch DOM changes.
+    // If not, you can remove cardHosts entirely and keep queueRebuild() calls only.
+    this.cardHosts?.changes?.subscribe(() => this.queueRebuild());
   }
 
   @HostListener('window:resize')
@@ -45,6 +46,7 @@ export class Tree implements AfterViewInit, OnDestroy {
   private queueRebuild() {
     if (this.rebuildQueued) return;
     this.rebuildQueued = true;
+
     requestAnimationFrame(() => {
       this.rebuildQueued = false;
       this.buildLines();
@@ -54,7 +56,7 @@ export class Tree implements AfterViewInit, OnDestroy {
   private buildLines() {
     this.removeLines();
 
-    // Map node id -> element
+    // Map node id -> element (requires: <app-card [attr.data-node-id]="node.id" ...>)
     const idToEl = new Map<string, HTMLElement>();
     const all = document.querySelectorAll<HTMLElement>('app-card[data-node-id]');
     all.forEach(el => {
@@ -62,28 +64,81 @@ export class Tree implements AfterViewInit, OnDestroy {
       if (id) idToEl.set(id, el);
     });
 
-    // Walk tree and connect parent -> each child
+    const drawnPartnerKeys = new Set<string>();
+    const partnerKey = (aId: string, bId: string) => [aId, bId].sort().join('|');
+
+    const pointAnchorMid = (aEl: HTMLElement, bEl: HTMLElement) => {
+      const a = aEl.getBoundingClientRect();
+      const b = bEl.getBoundingClientRect();
+      const ax = a.left + a.width / 2;
+      const ay = a.top + a.height / 2;
+      const bx = b.left + b.width / 2;
+      const by = b.top + b.height / 2;
+      return LeaderLine.pointAnchor({ x: (ax + bx) / 2, y: (ay + by) / 2 });
+    };
+
+    const drawPartnerLine = (a: PersonNode) => {
+      if (!a.partner) return;
+
+      const aEl = idToEl.get(a.id);
+      const pEl = idToEl.get(a.partner.id);
+      if (!aEl || !pEl) return;
+
+      // avoid duplicate partner lines
+      const key = partnerKey(a.id, a.partner.id);
+      if (drawnPartnerKeys.has(key)) return;
+      drawnPartnerKeys.add(key);
+
+      // choose sockets based on horizontal order
+      const aRect = aEl.getBoundingClientRect();
+      const pRect = pEl.getBoundingClientRect();
+      const aIsLeft = aRect.left < pRect.left;
+
+      this.lines.push(
+        new LeaderLine(aEl, pEl, {
+          color: '#000',
+          size: 2,
+          path: 'straight',
+          startPlug: 'behind',
+          endPlug: 'behind',
+          startSocket: aIsLeft ? 'right' : 'left',
+          endSocket: aIsLeft ? 'left' : 'right',
+        })
+      );
+    };
+
     const walk = (node: PersonNode) => {
+      drawPartnerLine(node);
+
       const parentEl = idToEl.get(node.id);
-      if (node.children?.length && parentEl) {
+      if (!parentEl) {
+        node.children?.forEach(walk);
+        return;
+      }
+
+      // If partner exists, child lines should start from the midpoint between them
+      const partnerEl = node.partner ? idToEl.get(node.partner.id) : undefined;
+      const startAnchor = partnerEl ? pointAnchorMid(parentEl, partnerEl) : parentEl;
+
+      if (node.children?.length) {
         for (const c of node.children) {
           const childEl = idToEl.get(c.id);
           if (childEl) {
-            this.lines.push(new LeaderLine(parentEl, childEl, {
-              color: '#000',
-              size: 2,
-              path: 'straight',
-              startPlug: 'behind',
-              endPlug: 'behind',
-              startSocket: 'bottom',
-              endSocket: 'top',
-            }));
+            this.lines.push(
+              new LeaderLine(startAnchor, childEl, {
+                color: '#000',
+                size: 2,
+                path: 'grid',
+                startPlug: 'behind',
+                endPlug: 'behind',
+                startSocket: 'bottom',
+                endSocket: 'top',
+                startSocketGravity: 125
+              })
+            );
           }
           walk(c);
         }
-      } else if (node.children?.length) {
-        // still walk even if missing parentEl
-        for (const c of node.children) walk(c);
       }
     };
 

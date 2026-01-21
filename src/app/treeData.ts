@@ -23,7 +23,7 @@ function Child(
 }
 
 export const treeData = Child(
-    "Erhardt König", "", Partner("Dorothea ..."), 
+    "Erhardt König", "", Partner("Dorothea Huhn"), 
     Child(
         "Andreas König", "", Partner("Manuela Stracke"), 
         Child("Leon König", "", Partner("Bonginkosi Magamba")), 
