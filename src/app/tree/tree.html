@@ -1,10 +1,11 @@
 <section #viewport class="viewport"
+(wheel)="onWheel($event)"
   (pointerdown)="onDown($event)"
   (pointermove)="onMove($event)"
   (pointerup)="onUp($event)"
   (pointercancel)="onUp($event)"
   (pointerleave)="onUp($event)">
-  <div class="content">
+  <div class="content" [style.transform]="transform">
     <app-tree-node [node]="treeData"></app-tree-node>
   </div>
 </section>

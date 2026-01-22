@@ -137,7 +137,7 @@ export class Tree implements AfterViewInit, OnDestroy {
                 endPlug: 'behind',
                 startSocket: 'bottom',
                 endSocket: 'top',
-                startSocketGravity: 80
+                startSocketGravity: 80 * this.scale
               })
             );
           }
@@ -160,44 +160,78 @@ export class Tree implements AfterViewInit, OnDestroy {
     this.removeLines();
   }
 
-  private dragging = false;
-  private startX = 0;
-  private startY = 0;
-  private startScrollLeft = 0;
-  private startScrollTop = 0;
+  scale = 1;
+  minScale = 0.3;
+  maxScale = 4;
 
+  translateX = 0;
+  translateY = 0;
+
+  dragging = false;
+  startX = 0;
+  startY = 0;
+
+  get transform() {
+    return `translate(${this.translateX}px, ${this.translateY}px) scale(${this.scale})`;
+  }
+
+  /* ================= ZOOM ================= */
+  onWheel(e: WheelEvent) {
+    e.preventDefault();
+    this.queueRebuild();
+
+    const zoomSpeed = 0.0015;
+    const delta = -e.deltaY * zoomSpeed;
+    const newScale = this.clamp(this.scale * (1 + delta), this.minScale, this.maxScale);
+
+    const rect = this.viewport.nativeElement.getBoundingClientRect();
+
+    // Mouse position relative to viewport
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+
+    // World position before zoom
+    const worldX = (mouseX - this.translateX) / this.scale;
+    const worldY = (mouseY - this.translateY) / this.scale;
+
+    // Apply zoom
+    this.scale = newScale;
+
+    // Adjust pan so zoom happens at cursor
+    this.translateX = mouseX - worldX * this.scale;
+    this.translateY = mouseY - worldY * this.scale;
+  }
+
+  /* ================= PAN ================= */
   onDown(e: PointerEvent) {
-    const el = this.viewport.nativeElement;
     this.dragging = true;
+    this.startX = e.clientX - this.translateX;
+    this.startY = e.clientY - this.translateY;
 
+    const el = this.viewport.nativeElement;
     el.classList.add('dragging');
     el.setPointerCapture(e.pointerId);
-
-    this.startX = e.clientX;
-    this.startY = e.clientY;
-    this.startScrollLeft = el.scrollLeft;
-    this.startScrollTop = el.scrollTop;
   }
 
   onMove(e: PointerEvent) {
     if (!this.dragging) return;
-
-    const el = this.viewport.nativeElement;
-    const dx = e.clientX - this.startX;
-    const dy = e.clientY - this.startY;
-
-    // invert so dragging right moves content right (i.e., scroll left decreases)
-    el.scrollLeft = this.startScrollLeft - dx;
-    el.scrollTop = this.startScrollTop - dy;
+    this.queueRebuild();
+    this.translateX = e.clientX - this.startX;
+    this.translateY = e.clientY - this.startY;
   }
 
   onUp(e: PointerEvent) {
-    if (!this.dragging) return;
-
-    const el = this.viewport.nativeElement;
     this.dragging = false;
+    this.viewport.nativeElement.classList.remove('dragging');
 
-    el.classList.remove('dragging');
-    try { el.releasePointerCapture(e.pointerId); } catch {}
+    // Optional but correct when using pointer events
+    try {
+      this.viewport.nativeElement.releasePointerCapture(e.pointerId);
+    } catch {}
+  }
+
+  /* ================= UTILS ================= */
+  clamp(v: number, min: number, max: number) {
+    return Math.max(min, Math.min(max, v));
   }
 }

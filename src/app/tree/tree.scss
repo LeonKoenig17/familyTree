@@ -6,16 +6,15 @@
 }
 
 section {
-    @include dFlex($jc: unset);
+    @include dFlex();
     flex-direction: column;
-    height: calc(100vh - 2 * $HFHeight - 50px);
-    overflow: auto;
-    position: relative;
-    margin-top: 50px;
+    height: calc(100vh - 2 * $HFHeight);
     cursor: grab;
     user-select: none;
     touch-action: none;
     .content {
+        transform-origin: 0 0;
+        will-change: transform;
     }
     &.dragging {
         cursor: grabbing;

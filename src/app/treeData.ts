@@ -26,7 +26,7 @@ export const treeData = Child(
     "Erhardt König", "", Partner("Dorothea Huhn"), 
     Child(
         "Andreas König", "", Partner("Manuela Stracke"), 
-        Child("Leon König", "", Partner("Bonginkosi Magamba")), 
+        Child("Leon König", "", Partner("Bonginkosi Mahamba")), 
         Child("Lino König")
     ), 
     Child(
