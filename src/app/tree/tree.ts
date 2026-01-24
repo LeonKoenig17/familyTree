@@ -137,7 +137,7 @@ export class Tree implements AfterViewInit, OnDestroy {
                 endPlug: 'behind',
                 startSocket: 'bottom',
                 endSocket: 'top',
-                startSocketGravity: 80 * this.scale
+                endSocketGravity: 0,
               })
             );
           }
@@ -175,7 +175,6 @@ export class Tree implements AfterViewInit, OnDestroy {
     return `translate(${this.translateX}px, ${this.translateY}px) scale(${this.scale})`;
   }
 
-  /* ================= ZOOM ================= */
   onWheel(e: WheelEvent) {
     e.preventDefault();
     this.queueRebuild();

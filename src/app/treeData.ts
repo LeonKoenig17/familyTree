@@ -23,6 +23,8 @@ function Child(
 }
 
 export const treeData = Child(
+  "Erich König", "", Partner("Erna ..."),
+  Child(
     "Erhardt König", "", Partner("Dorothea Huhn"), 
     Child(
         "Andreas König", "", Partner("Manuela Stracke"), 
@@ -31,7 +33,37 @@ export const treeData = Child(
     ), 
     Child(
         "Daniela König", "", Partner("Bernd Buchmann"), 
-        Child("Antonia Buchman"), 
+        Child("Antonia Buchman", "", Partner("Tobias Rödiger")), 
         Child("Erik Buchmann")
     )
+  ), 
+  Child(
+    "Dorothea König", "", Partner("Günter Schnell"),
+    Child("Carola Schnell", "", Partner("Eike Bickel"),
+      Child("Alexander Bickel"), 
+      Child("Michael Bickel"),
+      Child("Oliver Bickel")
+    ),
+    Child("Jana Schnell", "", Partner("Dirk Schubert"),
+      Child("Sebastian Schubert"),
+      Child("Christoph Schubert"),
+    )
+  ), 
+  Child(
+    "Christine König", "", Partner("Matthias Jähnig"),
+    Child("Kerstin Jähnig", "", Partner("Michael ..."), 
+      Child("Johannes Tobaben"), 
+      Child("Elise Tobaben"),
+      Child("Friedrich Tobaben")
+    ),
+  ), 
+  Child(
+    "Michael König", "", Partner("Renate Stockhaus"),
+    Child("Martin König", "", Partner("Ella ..."), 
+      Child("Hannah König"),
+      Child("Jakob König"),
+      Child("... ...")
+    ),
+    Child("Stefan König"),
+  )
 )

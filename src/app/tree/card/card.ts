@@ -15,7 +15,6 @@ export class Card {
       .trim()
       .split(/\s+/)
       .join("\n")
-    console.log(this.name);
   }
 
   placeholders = [

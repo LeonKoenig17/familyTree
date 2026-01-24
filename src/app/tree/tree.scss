@@ -15,6 +15,7 @@ section {
     .content {
         transform-origin: 0 0;
         will-change: transform;
+        border: 2px solid red;
     }
     &.dragging {
         cursor: grabbing;
